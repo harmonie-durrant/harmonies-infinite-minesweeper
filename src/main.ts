@@ -6,18 +6,20 @@ const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
 const ctx = canvas.getContext("2d")!;
 
 const camera = new Camera();
+let previousPointerPosition: { x: number; y: number } | null = { x: 0, y: 0 };
+let pointerIsDown = false;
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
     ctx.fillStyle = "gray";
     for (
         let col = Math.floor(camera.x / CELL_SIZE);
-        col * CELL_SIZE - camera.x < canvas.width;
+        col * CELL_SIZE - camera.x < canvas.clientWidth;
         col++
     ) {
         for (
             let row = Math.floor(camera.y / CELL_SIZE);
-            row * CELL_SIZE - camera.y < canvas.height;
+            row * CELL_SIZE - camera.y < canvas.clientHeight;
             row++
         ) {
             ctx.fillRect(
@@ -44,5 +46,36 @@ function resize() {
     draw();
 }
 
+function onPointerDown() {
+    pointerIsDown = true;
+}
+
+function onPointermove(event: PointerEvent) {
+    if (!pointerIsDown) return;
+
+    if (previousPointerPosition) {
+        const positionDiff = {
+            x: previousPointerPosition.x - event.clientX,
+            y: previousPointerPosition.y - event.clientY,
+        };
+        camera.x += positionDiff.x;
+        camera.y += positionDiff.y;
+        draw();
+    }
+
+    previousPointerPosition = {
+        x: event.clientX,
+        y: event.clientY,
+    };
+}
+
+function onPointerUp() {
+    pointerIsDown = false;
+    previousPointerPosition = null;
+}
+
 window.addEventListener("resize", resize);
+window.addEventListener("pointerdown", onPointerDown);
+window.addEventListener("pointermove", onPointermove);
+window.addEventListener("pointerup", onPointerUp);
 resize();
