@@ -11,8 +11,8 @@ export enum CellState {
 export class Grid {
     public seed: number;
     public isGameOver: boolean = false;
+    public mineDensity: number;
 
-    private mineDensity: number;
     private data = new Map<string, CellState>();
     private firstReveal: Vector2D | null = null;
 
