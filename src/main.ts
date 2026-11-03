@@ -54,12 +54,10 @@ function onPointermove(event: PointerEvent) {
     if (!pointerIsDown) return;
 
     if (previousPointerPosition) {
-        const positionDiff = {
+        camera.move({
             x: previousPointerPosition.x - event.clientX,
             y: previousPointerPosition.y - event.clientY,
-        };
-        camera.x += positionDiff.x;
-        camera.y += positionDiff.y;
+        });
         draw();
     }
 
