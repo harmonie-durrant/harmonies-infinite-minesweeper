@@ -9,11 +9,21 @@ const ctx = canvas.getContext("2d")!;
 
 const camera = new Camera();
 const grid = new Grid(42);
+const gameOverMenu = document.querySelector<HTMLDivElement>("#game_over_menu")!;
+let isMenuOpen = false;
 
 let previousPointerPosition: Vector2D | null = null;
 let pointerDownPosition: Vector2D | null = null;
 let isDragging = false;
 let pointerIsDown = false;
+
+const bombImage = new Image();
+bombImage.src = "/bomb.svg";
+bombImage.onload = () => draw();
+
+const flagImage = new Image();
+flagImage.src = "/flag.svg";
+flagImage.onload = () => draw();
 
 function screenToCell(screenX: number, screenY: number): Vector2D {
     return {
@@ -55,11 +65,22 @@ function draw() {
             const cellPosition = { x: col, y: row };
             const cellState = grid.getCellState(cellPosition);
             if (cellState === CellState.REVEALED || grid.isGameOver) {
-                if (grid.isMine({ x: col, y: row })) {
-                    ctx.fillStyle = "red";
+                ctx.fillStyle = "lightgray";
+                if (
+                    cellState !== CellState.FLAGGED &&
+                    grid.isMine({ x: col, y: row })
+                ) {
                     ctx.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                    if (bombImage.complete) {
+                        ctx.drawImage(
+                            bombImage,
+                            screenX + 10,
+                            screenY + 10,
+                            CELL_SIZE - 10 * 2,
+                            CELL_SIZE - 10 * 2,
+                        );
+                    }
                 } else {
-                    ctx.fillStyle = "lightgray";
                     ctx.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
                     drawNumber(
                         screenX,
@@ -67,9 +88,23 @@ function draw() {
                         grid.countAdjacentMines(cellPosition),
                     );
                 }
-            } else if (cellState === CellState.FLAGGED) {
-                ctx.fillStyle = "green";
-                ctx.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+            }
+            if (cellState === CellState.FLAGGED) {
+                if (grid.isGameOver) {
+                    ctx.fillStyle = grid.isMine({ x: col, y: row })
+                        ? "green"
+                        : "red";
+                    ctx.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                }
+                if (flagImage.complete) {
+                    ctx.drawImage(
+                        flagImage,
+                        screenX + 10,
+                        screenY + 10,
+                        CELL_SIZE - 10 * 2,
+                        CELL_SIZE - 10 * 2,
+                    );
+                }
             }
         }
     }
@@ -84,14 +119,20 @@ function resize() {
 }
 
 function onCellClick(event: PointerEvent) {
+    if (grid.isGameOver) return;
     const cellPosition = screenToCell(event.offsetX, event.offsetY);
     const cellState = grid.getCellState(cellPosition);
     if ([CellState.REVEALED, CellState.FLAGGED].includes(cellState)) return;
     grid.revealCell(cellPosition);
     draw();
+    if (grid.isGameOver) {
+        gameOverMenu.classList.replace("hidden", "flex");
+        isMenuOpen = true;
+    }
 }
 
 function onCellRightClick(event: PointerEvent) {
+    if (grid.isGameOver) return;
     const cellPosition = screenToCell(event.offsetX, event.offsetY);
     const cellState = grid.getCellState(cellPosition);
     if (cellState === CellState.REVEALED) return;
@@ -109,7 +150,7 @@ function onPointerDown(event: PointerEvent) {
 }
 
 function onPointermove(event: PointerEvent) {
-    if (!pointerIsDown || !pointerDownPosition) return;
+    if (isMenuOpen || !pointerIsDown || !pointerDownPosition) return;
 
     if (!isDragging) {
         const dx = event.offsetX - pointerDownPosition.x;
@@ -138,6 +179,20 @@ function onPointerUp(event: PointerEvent) {
         }
     }
 }
+
+function closeUI() {
+    gameOverMenu.classList.replace("flex", "hidden");
+    isMenuOpen = false;
+}
+
+function restart() {
+    closeUI();
+    grid.reset();
+    draw();
+}
+
+document.querySelector("#restart_button")!.addEventListener("click", restart);
+document.querySelector("#view_map_button")!.addEventListener("click", closeUI);
 
 window.addEventListener("resize", resize);
 window.addEventListener("contextmenu", (e) => e.preventDefault());
