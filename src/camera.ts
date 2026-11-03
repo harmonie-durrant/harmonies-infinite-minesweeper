@@ -1,14 +1,14 @@
-export class Camera {
-    public x = 0;
-    public y = 0;
+import type { Vector2D } from "./vector";
 
-    constructor() {
-        this.x = 0;
-        this.y = 0;
+export class Camera {
+    public position: Vector2D;
+
+    constructor(startPosition: Vector2D = { x: 0, y: 0 }) {
+        this.position = startPosition;
     }
 
-    public move(direction: { x: number; y: number }) {
-        this.x += direction.x;
-        this.y += direction.y;
+    public move(direction: Vector2D) {
+        this.position.x += direction.x;
+        this.position.y += direction.y;
     }
 }
