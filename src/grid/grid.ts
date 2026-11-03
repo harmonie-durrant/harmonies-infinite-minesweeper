@@ -10,9 +10,11 @@ export enum CellState {
 
 export class Grid {
     public seed: number;
-    public mineDensity: number;
-    public data = new Map<string, CellState>();
-    public firstReveal: Vector2D | null = null;
+    public isGameOver: boolean = false;
+
+    private mineDensity: number;
+    private data = new Map<string, CellState>();
+    private firstReveal: Vector2D | null = null;
 
     constructor(seed: number, density: number = 0.18) {
         const mineDensity = Math.abs(density);
@@ -32,6 +34,7 @@ export class Grid {
     }
 
     public revealCell(cellPosition: Vector2D) {
+        if (this.isGameOver) return;
         if (!this.firstReveal) {
             this.firstReveal = cellPosition;
         }
@@ -40,6 +43,10 @@ export class Grid {
         while (queue.length > 0 && revealed < MAX_REVEAL) {
             const cell = queue.pop()!;
             if (this.getCellState(cell) !== CellState.HIDDEN) continue;
+            if (this.isMine(cell)) {
+                this.isGameOver = true;
+                return;
+            }
             this.setCellState(cell, CellState.REVEALED);
             revealed++;
             if (this.countAdjacentMines(cell) === 0)

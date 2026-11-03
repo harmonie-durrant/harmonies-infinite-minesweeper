@@ -54,7 +54,7 @@ function draw() {
             ctx.fillRect(screenX, screenY, 1, CELL_SIZE);
             const cellPosition = { x: col, y: row };
             const cellState = grid.getCellState(cellPosition);
-            if (cellState === CellState.REVEALED) {
+            if (cellState === CellState.REVEALED || grid.isGameOver) {
                 if (grid.isMine({ x: col, y: row })) {
                     ctx.fillStyle = "red";
                     ctx.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
@@ -68,7 +68,6 @@ function draw() {
                     );
                 }
             } else if (cellState === CellState.FLAGGED) {
-                // TODO: draf a flag
                 ctx.fillStyle = "green";
                 ctx.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
             }
@@ -90,9 +89,6 @@ function onCellClick(event: PointerEvent) {
     if ([CellState.REVEALED, CellState.FLAGGED].includes(cellState)) return;
     grid.revealCell(cellPosition);
     draw();
-    if (grid.isMine(cellPosition)) {
-        console.log("GAME OVER");
-    }
 }
 
 function onCellRightClick(event: PointerEvent) {
