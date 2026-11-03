@@ -1,5 +1,7 @@
 export const CELL_SIZE = 64;
+
 export const DRAG_THRESHOLD = 5;
+
 export const NUMBER_COLORS = [
     "",
     "#0000ff",
@@ -11,3 +13,5 @@ export const NUMBER_COLORS = [
     "#000000",
     "#808080",
 ];
+
+export const MAX_REVEAL = 10000;

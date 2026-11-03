@@ -59,7 +59,7 @@ function draw() {
                     ctx.fillStyle = "red";
                     ctx.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
                 } else {
-                    ctx.fillStyle = "light-gray";
+                    ctx.fillStyle = "lightgray";
                     ctx.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
                     drawNumber(
                         screenX,

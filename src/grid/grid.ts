@@ -1,3 +1,4 @@
+import { MAX_REVEAL } from "../constants";
 import { hash } from "../hash";
 import type { Vector2D } from "../vector";
 
@@ -11,6 +12,7 @@ export class Grid {
     public seed: number;
     public mineDensity: number;
     public data = new Map<string, CellState>();
+    public firstReveal: Vector2D | null = null;
 
     constructor(seed: number, density: number = 0.18) {
         const mineDensity = Math.abs(density);
@@ -30,21 +32,32 @@ export class Grid {
     }
 
     public revealCell(cellPosition: Vector2D) {
-        if (this.getCellState(cellPosition) !== CellState.HIDDEN) return;
-        this.setCellState(cellPosition, CellState.REVEALED);
-        if (this.countAdjacentMines(cellPosition) === 0) {
-            const neighboutList = this.getCellNeighbours(cellPosition);
-            for (const neighbour of neighboutList) {
-                if (this.countAdjacentMines(neighbour) > 0) {
-                    this.setCellState(neighbour, CellState.REVEALED);
-                    continue;
-                }
-                this.revealCell(neighbour);
-            }
+        if (!this.firstReveal) {
+            this.firstReveal = cellPosition;
+        }
+        const queue = [cellPosition];
+        let revealed = 0;
+        while (queue.length > 0 && revealed < MAX_REVEAL) {
+            const cell = queue.pop()!;
+            if (this.getCellState(cell) !== CellState.HIDDEN) continue;
+            this.setCellState(cell, CellState.REVEALED);
+            revealed++;
+            if (this.countAdjacentMines(cell) === 0)
+                queue.push(...this.getCellNeighbours(cell));
         }
     }
 
+    private isCellInSpawn(cellPosition: Vector2D) {
+        if (!this.firstReveal) return false;
+        const diff = {
+            x: Math.abs(cellPosition.x - this.firstReveal.x),
+            y: Math.abs(cellPosition.y - this.firstReveal.y),
+        };
+        return diff.x < 2 && diff.y < 2;
+    }
+
     public isMine(cellPosition: Vector2D) {
+        if (this.isCellInSpawn(cellPosition)) return false;
         const hashValue = hash(cellPosition.x, cellPosition.y, this.seed);
         return hashValue / 2 ** 32 < this.mineDensity;
     }
