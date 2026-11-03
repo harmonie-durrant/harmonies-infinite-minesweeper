@@ -8,9 +8,10 @@ const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
 const ctx = canvas.getContext("2d")!;
 
 const camera = new Camera();
-const grid = new Grid(42);
+let grid = new Grid(Math.random() * 1000000);
 const gameOverMenu = document.querySelector<HTMLDivElement>("#game_over_menu")!;
-let isMenuOpen = false;
+const mainMenu = document.querySelector<HTMLDivElement>("#main_menu")!;
+let isMenuOpen = true;
 
 let previousPointerPosition: Vector2D | null = null;
 let pointerDownPosition: Vector2D | null = null;
@@ -119,20 +120,19 @@ function resize() {
 }
 
 function onCellClick(event: PointerEvent) {
-    if (grid.isGameOver) return;
+    if (grid.isGameOver || isMenuOpen) return;
     const cellPosition = screenToCell(event.offsetX, event.offsetY);
     const cellState = grid.getCellState(cellPosition);
     if ([CellState.REVEALED, CellState.FLAGGED].includes(cellState)) return;
     grid.revealCell(cellPosition);
     draw();
     if (grid.isGameOver) {
-        gameOverMenu.classList.replace("hidden", "flex");
-        isMenuOpen = true;
+        openUI(gameOverMenu);
     }
 }
 
 function onCellRightClick(event: PointerEvent) {
-    if (grid.isGameOver) return;
+    if (grid.isGameOver || isMenuOpen) return;
     const cellPosition = screenToCell(event.offsetX, event.offsetY);
     const cellState = grid.getCellState(cellPosition);
     if (cellState === CellState.REVEALED) return;
@@ -182,17 +182,39 @@ function onPointerUp(event: PointerEvent) {
 
 function closeUI() {
     gameOverMenu.classList.replace("flex", "hidden");
+    mainMenu.classList.replace("flex", "hidden");
     isMenuOpen = false;
+}
+
+function openUI(element: HTMLDivElement) {
+    element.classList.replace("hidden", "flex");
+    isMenuOpen = true;
 }
 
 function restart() {
     closeUI();
-    grid.reset();
+    openUI(mainMenu);
+    grid = new Grid(Math.random() * 1000000);
     draw();
+}
+
+function start() {
+    closeUI();
+    grid = new Grid(Math.random() * 1000000);
+    draw();
+}
+
+function onKeyPress(event: KeyboardEvent) {
+    if (event.key === "r") {
+        restart();
+    }
 }
 
 document.querySelector("#restart_button")!.addEventListener("click", restart);
 document.querySelector("#view_map_button")!.addEventListener("click", closeUI);
+document.querySelector("#start_button")!.addEventListener("click", start);
+
+window.addEventListener("keypress", onKeyPress);
 
 window.addEventListener("resize", resize);
 window.addEventListener("contextmenu", (e) => e.preventDefault());

@@ -9,6 +9,17 @@
         <canvas id="game" class="block h-full w-full touch-none"></canvas>
         <div id="ui" class="pointer-events-none fixed inset-0"></div>
         <div
+            id="main_menu"
+            class="absolute bg-black/20 top-0 bottom-0 left-0 right-0 flex items-center justify-center"
+        >
+            <div
+                class="relative bg-white p-5 rounded-2xl border-gray-400 overflow-hidden flex flex-col gap-2"
+            >
+                <p class="text-lg font-bold">Harmonie's Infinite Minesweeper</p>
+                <button id="start_button" type="button">Start</button>
+            </div>
+        </div>
+        <div
             id="game_over_menu"
             class="absolute bg-black/20 top-0 bottom-0 left-0 right-0 hidden items-center justify-center"
         >

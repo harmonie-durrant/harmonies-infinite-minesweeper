@@ -22,12 +22,6 @@ export class Grid {
         this.mineDensity = mineDensity > 1 ? 1 : mineDensity;
     }
 
-    public reset() {
-        this.data = new Map<string, CellState>();
-        this.isGameOver = false;
-        this.firstReveal = null;
-    }
-
     public getCellState(cellPosition: Vector2D) {
         return (
             this.data.get(`${cellPosition.x},${cellPosition.y}`) ||
