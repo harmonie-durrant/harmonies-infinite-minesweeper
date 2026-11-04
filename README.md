@@ -2,6 +2,10 @@
 
 Harmonie's infinite minesweeper, an infinite version of minesweeper where caos, high scores &amp; progression are the goal.
 
+<p align="center">
+    <img src="docs/screenshots/desktop-game.png" alt="Desktop gameplay: a cleared area of numbers and flags on the infinite board" width="100%" />
+</p>
+
 # How to run
 
 Run a quick build with:

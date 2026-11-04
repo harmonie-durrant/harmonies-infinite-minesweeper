@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+    <!-- Hidden cell, same bevel as drawHiddenCell in src/render.ts -->
+    <rect width="32" height="32" fill="#3a3a8c" />
+    <rect x="3" y="3" width="29" height="29" fill="#121236" />
+    <rect x="3" y="3" width="26" height="26" fill="#23235b" />
+    <!-- bomb.svg, thickened so it survives 16px -->
+    <g
+        transform="translate(4 4)"
+        fill="none"
+        stroke="#ff2e88"
+        stroke-width="2.6"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+    >
+        <circle cx="11" cy="13" r="8.5" fill="#3d1030" />
+        <path d="M14.35 4.65 16.3 2.7a2.41 2.41 0 0 1 3.4 0l1.6 1.6a2.4 2.4 0 0 1 0 3.4l-1.95 1.95" />
+        <path d="m22 2-1.5 1.5" />
+    </g>
+</svg>
