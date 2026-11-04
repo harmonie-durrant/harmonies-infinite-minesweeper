@@ -1,6 +1,12 @@
 import { CELL_SIZE } from "../constants";
-import { camera, grid } from "../main";
+import { camera, grid, restart } from "../main";
 import { draw, resize } from "../render";
+
+function onKeyPress(event: KeyboardEvent) {
+    if (event.key === "r") {
+        restart();
+    }
+}
 
 export function initializeWindowListeners() {
     window.addEventListener("resize", resize);
@@ -11,4 +17,5 @@ export function initializeWindowListeners() {
         grid.cellSize = CELL_SIZE * camera.zoom;
         draw();
     });
+    window.addEventListener("keypress", onKeyPress);
 }

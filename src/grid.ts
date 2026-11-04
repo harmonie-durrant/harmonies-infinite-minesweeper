@@ -14,6 +14,7 @@ export class Grid {
     public isGameOver: boolean = false;
     public mineDensity: number;
     public cellSize: number;
+    public isLocked: boolean = true;
 
     private data = new Map<string, CellState>();
     private firstReveal: Vector2D | null = null;
@@ -29,6 +30,8 @@ export class Grid {
         this.seed = Math.random() * 1000000;
         this.data = new Map<string, CellState>();
         this.firstReveal = null;
+        this.isLocked = true;
+        this.isGameOver = false;
     }
 
     public getCellState(cellPosition: Vector2D) {

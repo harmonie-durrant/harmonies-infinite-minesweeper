@@ -14,7 +14,7 @@ export class UI {
     }
 
     public isOpen() {
-        const panelList = Object(this.uiPanels).values;
+        const panelList = Object.values(this.uiPanels);
         for (const panel of panelList) {
             if (panel.isOpen) return true;
         }
@@ -36,7 +36,7 @@ export class UI {
     }
 
     public closeAll() {
-        const names = Object(this.uiPanels).keys;
+        const names = Object.keys(this.uiPanels);
         for (const name of names) {
             this.close(name);
         }

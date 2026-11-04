@@ -11,7 +11,7 @@ let isDragging = false;
 let pointerIsDown = false;
 
 function onCellClick(event: PointerEvent) {
-    if (grid.isGameOver || ui.isOpen()) return;
+    if (grid.isGameOver || grid.isLocked) return;
     const cellPosition = screenToCell(event.offsetX, event.offsetY, camera);
     const cellState = grid.getCellState(cellPosition);
     if ([CellState.REVEALED, CellState.FLAGGED].includes(cellState)) return;
@@ -19,11 +19,12 @@ function onCellClick(event: PointerEvent) {
     draw();
     if (grid.isGameOver) {
         ui.open("gameOverMenu");
+        grid.isLocked = true;
     }
 }
 
 function onCellRightClick(event: PointerEvent) {
-    if (grid.isGameOver || ui.isOpen()) return;
+    if (grid.isGameOver || grid.isLocked) return;
     const cellPosition = screenToCell(event.offsetX, event.offsetY, camera);
     const cellState = grid.getCellState(cellPosition);
     if (cellState === CellState.REVEALED) return;
@@ -42,7 +43,7 @@ function onPointerDown(event: PointerEvent) {
 }
 
 function onPointermove(event: PointerEvent) {
-    if (ui.isOpen() || !pointerIsDown || !pointerDownPosition) return;
+    if (grid.isLocked || !pointerIsDown || !pointerDownPosition) return;
 
     if (!isDragging) {
         const dx = event.offsetX - pointerDownPosition.x;
@@ -79,4 +80,5 @@ export function initializeCanvasListeners() {
     canvas.addEventListener("pointermove", onPointermove);
     canvas.addEventListener("pointerup", onPointerUp);
     canvas.addEventListener("pointercancel", onPointerUp);
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 }
