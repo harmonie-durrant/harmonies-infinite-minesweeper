@@ -9,20 +9,25 @@ export class Camera {
         this.position = startPosition || new Vector2D();
     }
 
-    // Bigger cells
-    public zoomIn() {
-        this.setZoom(this.zoom + ZOOM_STEP);
+    // Bigger cells. Steps are rounded so repeated zooms don't drift.
+    public zoomIn(anchor: Vector2D) {
+        this.zoomTo(Math.round((this.zoom + ZOOM_STEP) * 10) / 10, anchor);
     }
 
     // Smaller cells
-    public zoomOut() {
-        this.setZoom(this.zoom - ZOOM_STEP);
+    public zoomOut(anchor: Vector2D) {
+        this.zoomTo(Math.round((this.zoom - ZOOM_STEP) * 10) / 10, anchor);
     }
 
-    private setZoom(zoom: number) {
-        // Rounded so repeated steps don't drift
-        const rounded = Math.round(zoom * 10) / 10;
-        this.zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, rounded));
+    /** Zooms while keeping the board point under the anchor (screen px) still. */
+    public zoomTo(zoom: number, anchor: Vector2D) {
+        const clamped = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
+        const ratio = clamped / this.zoom;
+        this.position = new Vector2D(
+            (this.position.x + anchor.x) * ratio - anchor.x,
+            (this.position.y + anchor.y) * ratio - anchor.y,
+        );
+        this.zoom = clamped;
     }
 
     public move(direction: Vector2D) {

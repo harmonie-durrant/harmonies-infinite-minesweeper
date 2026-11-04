@@ -101,6 +101,33 @@
         box-shadow: 0 0 0 0 var(--color-arcade-line);
     }
 
+    /* Not available yet: greyed out with a strip of tape on the corner */
+    .btn-soon {
+        @apply relative;
+    }
+
+    .btn-soon:disabled {
+        @apply cursor-not-allowed border-arcade-line text-arcade-muted hover:bg-transparent;
+        box-shadow: 4px 4px 0 0 var(--color-arcade-raised);
+        translate: none;
+    }
+
+    .tape {
+        @apply absolute -top-3 -right-3 rotate-[8deg] bg-arcade-yellow/90 px-3 py-1 text-[8px] tracking-widest text-arcade-bg uppercase;
+        clip-path: polygon(
+            0 0,
+            100% 0,
+            97% 25%,
+            100% 50%,
+            97% 75%,
+            100% 100%,
+            0 100%,
+            3% 75%,
+            0 50%,
+            3% 25%
+        );
+    }
+
     .btn-icon {
         @apply flex size-14 items-center justify-center border-arcade-cyan bg-arcade-panel p-0 text-arcade-cyan hover:bg-arcade-raised;
         box-shadow: 4px 4px 0 0 var(--color-arcade-pink);
@@ -115,9 +142,56 @@
         box-shadow: 3px 3px 0 0 var(--color-arcade-pink);
     }
 
+    /* Music player with the coin balance tucked under it */
+    /* Lets clicks through to the board around the player and coins */
+    .top-right-hud {
+        @apply pointer-events-none absolute top-4 right-4 z-40 flex max-w-[calc(100%-2rem)] flex-col items-end gap-3;
+    }
+
     .music-player {
-        @apply absolute top-4 right-4 z-40 flex w-80 max-w-[calc(100%-2rem)] md:w-112 items-center gap-3 border-4 border-arcade-cyan bg-arcade-panel p-2 text-left;
+        @apply pointer-events-auto flex w-80 max-w-full items-center gap-3 border-4 border-arcade-cyan bg-arcade-panel p-2 text-left md:w-112;
         box-shadow: 4px 4px 0 0 var(--color-arcade-pink);
+    }
+
+    .coin-balance {
+        @apply pointer-events-none flex items-center gap-2 border-4 border-arcade-cyan bg-arcade-panel px-3 py-2 text-sm text-arcade-yellow opacity-75;
+        box-shadow: 4px 4px 0 0 var(--color-arcade-pink);
+    }
+
+    .run-stats {
+        @apply flex flex-col gap-3 border-y-4 border-arcade-line py-4;
+    }
+
+    .run-stat {
+        @apply flex items-center justify-between gap-4 text-xs tracking-widest uppercase;
+    }
+
+    .run-stat-value {
+        @apply flex items-center gap-2 text-arcade-yellow;
+    }
+
+    /* Coins picked up this run, banked only when the run ends */
+    .run-coin-balance {
+        @apply border-2 border-arcade-yellow bg-arcade-panel px-2 py-1 text-[10px] text-arcade-yellow;
+    }
+
+    .run-coin-balance.lost {
+        @apply border-arcade-pink text-arcade-pink;
+    }
+
+    .coin-icon {
+        @apply size-6;
+        image-rendering: pixelated;
+    }
+
+    .coin-layer {
+        @apply pointer-events-none fixed inset-0 z-40 overflow-hidden;
+    }
+
+    .coin-flyer {
+        @apply absolute top-0 left-0;
+        image-rendering: pixelated;
+        filter: drop-shadow(0 0 6px var(--color-arcade-yellow));
     }
 
     .music-cover {

@@ -1,5 +1,10 @@
 import type { Camera } from "./camera";
-import { CELL_SIZE, MAX_REVEAL } from "./constants";
+import {
+    CELL_SIZE,
+    COIN_DENSITY,
+    COIN_SEED_OFFSET,
+    MAX_REVEAL,
+} from "./constants";
 import { hash } from "./utils";
 import { Vector2D } from "./vector";
 
@@ -34,6 +39,11 @@ export class Grid {
         this.isGameOver = false;
     }
 
+    /** False until the first cell of this board is revealed */
+    public get hasStarted() {
+        return this.firstReveal !== null;
+    }
+
     public getCellState(cellPosition: Vector2D) {
         return (
             this.data.get(`${cellPosition.x},${cellPosition.y}`) ||
@@ -45,7 +55,7 @@ export class Grid {
         this.data.set(`${cellPosition.x},${cellPosition.y}`, cellState);
     }
 
-    // Returns the cells that were opened, including the mine if one was hit
+    // Returns the cells that were opened; a mine that was hit comes last
     public revealCell(cellPosition: Vector2D): Vector2D[] {
         if (this.isGameOver) return [];
         if (!this.firstReveal) {
@@ -68,6 +78,28 @@ export class Grid {
         return revealed;
     }
 
+    /**
+     * Chording: a revealed number with exactly that many flags around it
+     * opens the rest of its neighbours. Returns the cells opened; when a flag
+     * was wrong, the mine that was hit comes last.
+     */
+    public chord(cellPosition: Vector2D): Vector2D[] {
+        if (this.getCellState(cellPosition) !== CellState.REVEALED) return [];
+        const neighbours = this.getCellNeighbours(cellPosition);
+        const flags = neighbours.filter(
+            (cell) => this.getCellState(cell) === CellState.FLAGGED,
+        ).length;
+        const mines = this.countAdjacentMines(cellPosition);
+        if (mines === 0 || flags !== mines) return [];
+
+        const revealed: Vector2D[] = [];
+        for (const cell of neighbours) {
+            revealed.push(...this.revealCell(cell));
+            if (this.isGameOver) break;
+        }
+        return revealed;
+    }
+
     private isCellInSpawn(cellPosition: Vector2D) {
         if (!this.firstReveal) return false;
         const diff = {
@@ -81,6 +113,17 @@ export class Grid {
         if (this.isCellInSpawn(cellPosition)) return false;
         const hashValue = hash(cellPosition.x, cellPosition.y, this.seed);
         return hashValue / 2 ** 32 < this.mineDensity;
+    }
+
+    // Never on a mine, and never drawn: found only by revealing
+    public isCoin(cellPosition: Vector2D) {
+        if (this.isMine(cellPosition)) return false;
+        const hashValue = hash(
+            cellPosition.x,
+            cellPosition.y,
+            this.seed + COIN_SEED_OFFSET,
+        );
+        return hashValue / 2 ** 32 < COIN_DENSITY;
     }
 
     private getCellNeighbours(cellPosition: Vector2D): Vector2D[] {

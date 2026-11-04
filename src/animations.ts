@@ -47,15 +47,23 @@ function ringDistance(a: Vector2D, b: Vector2D) {
     return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
 
+/** How long after the click a cell starts breaking (ms) */
+export function breakDelay(cell: Vector2D, origin: Vector2D) {
+    if (reducedMotion.matches) return 0;
+    return Math.min(
+        ringDistance(cell, origin) * BREAK_RING_DELAY,
+        BREAK_MAX_DELAY,
+    );
+}
+
 export function breakCells(cells: Vector2D[], origin: Vector2D) {
     if (reducedMotion.matches) return;
     const now = performance.now();
     for (const cell of cells) {
-        const ring = ringDistance(cell, origin);
         breakingCells.set(`${cell.x},${cell.y}`, {
             x: cell.x,
             y: cell.y,
-            start: now + Math.min(ring * BREAK_RING_DELAY, BREAK_MAX_DELAY),
+            start: now + breakDelay(cell, origin),
             spin: (hash(cell.x, cell.y, 0) / 2 ** 32) * 2 - 1,
         });
     }

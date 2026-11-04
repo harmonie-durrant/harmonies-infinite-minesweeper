@@ -5,6 +5,7 @@ import { cancelConfirm, pause, resume } from "../pause";
 import { resize } from "../render";
 import type { Action } from "../settings";
 import { runAction } from "./canvas";
+import { closeRunStats } from "../runStats";
 
 // Work in the pause menus too, not just in game
 const AUDIO_ACTIONS: Action[] = [
@@ -39,11 +40,17 @@ function onKeyDown(event: KeyboardEvent) {
         if (!event.repeat) onEscape();
         return;
     }
-    const { optionsMenu, confirmMenu, pauseMenu, gameOverMenu } = ui.uiPanels;
+    const { optionsMenu, confirmMenu, pauseMenu, gameOverMenu, runStatsMenu } =
+        ui.uiPanels;
     if (optionsMenu?.isOpen) return;
     // Enter on a focused button already presses it
     const isEnter = event.code === "Enter" || event.code === "NumpadEnter";
     const onButton = document.activeElement instanceof HTMLButtonElement;
+    if (runStatsMenu?.isOpen && isEnter && !onButton && !event.repeat) {
+        event.preventDefault();
+        closeRunStats();
+        return;
+    }
     if (gameOverMenu?.isOpen && isEnter && !onButton && !event.repeat) {
         event.preventDefault();
         startGame();

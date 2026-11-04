@@ -11,6 +11,8 @@ import { initializeMusicPlayer } from "./music/ui";
 import { initializeOptions } from "./options";
 import { initializePauseMenu } from "./pause";
 import { initializeVolumeHud } from "./volume";
+import { bankRunCoins, forfeitRunCoins, initializeCoins } from "./coins";
+import { initializeRunStats } from "./runStats";
 
 export const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
 export const ctx = canvas.getContext("2d")!;
@@ -20,6 +22,10 @@ export const ui = new UI({
     mainMenu: {
         element: document.querySelector<HTMLDivElement>("#main_menu")!,
         isOpen: true,
+    },
+    runStatsMenu: {
+        element: document.querySelector<HTMLDivElement>("#run_stats_menu")!,
+        isOpen: false,
     },
     gameOverMenu: {
         element: document.querySelector<HTMLDivElement>("#game_over_menu")!,
@@ -45,9 +51,17 @@ export const ui = new UI({
 
 export const grid = new Grid(Math.random() * 1000000, camera);
 
+// A run that hit a mine keeps its coins, even when skipping the stats screen;
+// one abandoned mid-way loses them
+function settleRunCoins() {
+    if (grid.isGameOver) bankRunCoins();
+    else forfeitRunCoins();
+}
+
 export function exitToMainMenu() {
     ui.closeAll();
     ui.open("mainMenu");
+    settleRunCoins();
     grid.reset();
     clearAnimations();
     draw();
@@ -56,6 +70,8 @@ export function exitToMainMenu() {
 export function startGame() {
     ui.closeAll();
     ui.open("gameUI");
+    // Before the reset, which clears isGameOver
+    settleRunCoins();
     grid.reset();
     grid.isLocked = false;
     clearAnimations();
@@ -76,6 +92,8 @@ function main() {
     initializeOptions();
     initializePauseMenu();
     initializeVolumeHud();
+    initializeCoins();
+    initializeRunStats();
     resize();
 }
 

@@ -14,10 +14,10 @@ function output() {
 }
 
 // A square wave that slides from one pitch to another while fading out
-function blip(from: number, to: number, duration: number) {
+function blip(from: number, to: number, duration: number, delay = 0) {
     if (settings.sfxVolume === 0) return;
     const { context, volume } = output();
-    const start = context.currentTime;
+    const start = context.currentTime + delay;
     const oscillator = context.createOscillator();
     const envelope = context.createGain();
     oscillator.type = "square";
@@ -39,6 +39,12 @@ export function playReveal(count: number) {
 export function playFlag(placed: boolean) {
     if (placed) blip(660, 990, 0.1);
     else blip(660, 440, 0.1);
+}
+
+// The classic two-note coin chime
+export function playCoin() {
+    blip(988, 988, 0.07);
+    blip(1319, 1319, 0.25, 0.07);
 }
 
 export function playExplosion() {

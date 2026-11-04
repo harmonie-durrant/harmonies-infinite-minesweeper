@@ -64,3 +64,16 @@ export const SFX_MAX_VOLUME = 0.5;
 export const VOLUME_STEP = 0.1;
 // How long the volume bars stay up after a change (ms)
 export const VOLUME_HUD_DURATION = 1500;
+
+// Share of safe cells holding a coin
+export const COIN_DENSITY = 0.03;
+// Gives coins their own hash stream, separate from mines
+export const COIN_SEED_OFFSET = 7919;
+export const COINS_KEY = "coins";
+// Pop out of the cell, hang, then fly to the balance (ms)
+export const COIN_FLIGHT_DURATION = 1000;
+// The cell starts breaking a little before the coin shows
+export const COIN_POP_DELAY = 120;
+
+// The run stats coin total ticks up over this long (ms)
+export const RUN_STATS_COUNT_DURATION = 700;

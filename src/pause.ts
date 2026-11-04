@@ -4,6 +4,8 @@ import { openOptions } from "./options";
 const confirmTitle = document.querySelector("#confirm_title")!;
 const confirmMessage = document.querySelector("#confirm_message")!;
 let onConfirm = () => {};
+// Where No goes back to: the pause menu, or straight into the game
+let confirmFrom = "pauseMenu";
 
 export function pause() {
     // Locked while a mine explodes, before the game over menu takes over
@@ -20,20 +22,41 @@ export function resume() {
     grid.isLocked = false;
 }
 
-function askConfirm(title: string, message: string, action: () => void) {
+function askConfirm(
+    title: string,
+    message: string,
+    action: () => void,
+    from: "pauseMenu" | "gameUI" = "pauseMenu",
+) {
     confirmTitle.textContent = title;
     confirmMessage.textContent = message;
     onConfirm = action;
-    ui.close("pauseMenu");
+    confirmFrom = from;
+    // The board must not take input behind the dialog
+    grid.isLocked = true;
+    ui.close(from);
     ui.open("confirmMenu");
     // Default to the safe answer
     document.querySelector<HTMLButtonElement>("#confirm_no")!.focus();
 }
 
+export function confirmRestart() {
+    askConfirm(
+        "Restart?",
+        "The current board progress will be lost",
+        startGame,
+        "gameUI",
+    );
+}
+
 export function cancelConfirm() {
     ui.close("confirmMenu");
-    ui.open("pauseMenu");
-    document.querySelector<HTMLButtonElement>("#resume_button")!.focus();
+    ui.open(confirmFrom);
+    if (confirmFrom === "gameUI") {
+        grid.isLocked = false;
+    } else {
+        document.querySelector<HTMLButtonElement>("#resume_button")!.focus();
+    }
 }
 
 export function initializePauseMenu() {
