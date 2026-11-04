@@ -57,6 +57,23 @@
         @apply text-[10px] tracking-widest text-arcade-muted uppercase;
     }
 
+    .arcade-subtitle-rainbow {
+        @apply bg-clip-text text-[10px] tracking-widest text-transparent uppercase;
+        background-image: linear-gradient(
+            to right,
+            #ff004d,
+            #ffa300,
+            #ffec27,
+            #00e436,
+            #29adff,
+            #83769c,
+            #ff77a8,
+            #ff004d
+        );
+        background-size: 200% auto;
+        animation: rainbow-scroll 3s linear infinite;
+    }
+
     .btn {
         @apply cursor-pointer border-4 px-4 py-3 text-sm tracking-widest uppercase transition-transform duration-75 select-none;
         @apply focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-arcade-yellow;
@@ -148,9 +165,16 @@
     }
 }
 
+@keyframes rainbow-scroll {
+    to {
+        background-position: 200% center;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .crt,
-    .blink {
+    .blink,
+    .arcade-subtitle-rainbow {
         animation: none;
     }
 }
