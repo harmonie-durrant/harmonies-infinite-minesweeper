@@ -45,25 +45,27 @@ export class Grid {
         this.data.set(`${cellPosition.x},${cellPosition.y}`, cellState);
     }
 
-    public revealCell(cellPosition: Vector2D) {
-        if (this.isGameOver) return;
+    // Returns the cells that were opened, including the mine if one was hit
+    public revealCell(cellPosition: Vector2D): Vector2D[] {
+        if (this.isGameOver) return [];
         if (!this.firstReveal) {
             this.firstReveal = cellPosition;
         }
         const queue = [cellPosition];
-        let revealed = 0;
-        while (queue.length > 0 && revealed < MAX_REVEAL) {
+        const revealed: Vector2D[] = [];
+        while (queue.length > 0 && revealed.length < MAX_REVEAL) {
             const cell = queue.pop()!;
             if (this.getCellState(cell) !== CellState.HIDDEN) continue;
             if (this.isMine(cell)) {
                 this.isGameOver = true;
-                return;
+                return [cell];
             }
             this.setCellState(cell, CellState.REVEALED);
-            revealed++;
+            revealed.push(cell);
             if (this.countAdjacentMines(cell) === 0)
                 queue.push(...this.getCellNeighbours(cell));
         }
+        return revealed;
     }
 
     private isCellInSpawn(cellPosition: Vector2D) {

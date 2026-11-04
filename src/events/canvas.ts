@@ -1,4 +1,5 @@
-import { DRAG_THRESHOLD } from "../constants";
+import { animateFlag, breakCells, explode } from "../animations";
+import { DRAG_THRESHOLD, GAME_OVER_MENU_DELAY } from "../constants";
 import { CellState } from "../grid";
 import { camera, canvas, grid, ui } from "../main";
 import { draw } from "../render";
@@ -15,12 +16,17 @@ function onCellClick(event: PointerEvent) {
     const cellPosition = screenToCell(event.offsetX, event.offsetY, camera);
     const cellState = grid.getCellState(cellPosition);
     if ([CellState.REVEALED, CellState.FLAGGED].includes(cellState)) return;
-    grid.revealCell(cellPosition);
-    draw();
+    const revealed = grid.revealCell(cellPosition);
+    breakCells(revealed, cellPosition);
     if (grid.isGameOver) {
-        ui.open("gameOverMenu");
+        explode(cellPosition);
         grid.isLocked = true;
+        // Let the explosion play out before covering the board
+        setTimeout(() => {
+            if (grid.isGameOver) ui.open("gameOverMenu");
+        }, GAME_OVER_MENU_DELAY);
     }
+    draw();
 }
 
 function onCellRightClick(event: PointerEvent) {
@@ -31,6 +37,7 @@ function onCellRightClick(event: PointerEvent) {
     const newState =
         cellState === CellState.FLAGGED ? CellState.HIDDEN : CellState.FLAGGED;
     grid.setCellState(cellPosition, newState);
+    animateFlag(cellPosition, newState === CellState.FLAGGED);
     draw();
 }
 

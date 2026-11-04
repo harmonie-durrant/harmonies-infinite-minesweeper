@@ -6,6 +6,7 @@ import { initializeDocumentListeners } from "./events/document";
 import { initializeWindowListeners } from "./events/window";
 import { initializeCanvasListeners } from "./events/canvas";
 import { draw, resize } from "./render";
+import { clearAnimations } from "./animations";
 
 export const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
 export const ctx = canvas.getContext("2d")!;
@@ -32,6 +33,7 @@ export function restart() {
     ui.closeAll();
     ui.open("mainMenu");
     grid.reset();
+    clearAnimations();
     draw();
 }
 

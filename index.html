@@ -4,14 +4,22 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Infinite Minesweeper</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+            rel="stylesheet"
+        />
     </head>
-    <body class="m-0 h-dvh overflow-hidden bg-neutral-900">
+    <body class="m-0 h-dvh overflow-hidden">
         <canvas id="game" class="block h-full w-full touch-none"></canvas>
         <div id="game_ui" class="absolute hidden bottom-5 right-5">
             <button
                 type="button"
                 id="restart_button_ui"
-                class="flex items-center bg-gray-50 justify-center size-11 rounded-full"
+                class="btn btn-icon"
+                aria-label="Restart"
+                title="Restart"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -20,9 +28,9 @@
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    stroke-width="2.5"
+                    stroke-linecap="square"
+                    stroke-linejoin="miter"
                     class="lucide lucide-rotate-ccw preview-icon"
                 >
                     <path
@@ -32,29 +40,37 @@
                 </svg>
             </button>
         </div>
-        <div
-            id="main_menu"
-            class="absolute bg-black/20 top-0 bottom-0 left-0 right-0 flex items-center justify-center"
-        >
-            <div
-                class="relative bg-white p-5 rounded-2xl border-gray-400 overflow-hidden flex flex-col gap-2"
-            >
-                <p class="text-lg font-bold">Harmonie's Infinite Minesweeper</p>
-                <button id="start_button" type="button">Start</button>
+        <div id="main_menu" class="arcade-overlay flex">
+            <div class="arcade-panel">
+                <p class="arcade-subtitle">Harmonie's</p>
+                <h1 class="arcade-title">Infinite<br />Minesweeper</h1>
+                <button id="start_button" type="button" class="btn btn-primary">
+                    Start
+                </button>
+                <p class="arcade-subtitle blink">Insert coin</p>
             </div>
         </div>
-        <div
-            id="game_over_menu"
-            class="absolute bg-black/20 top-0 bottom-0 left-0 right-0 hidden items-center justify-center"
-        >
-            <div
-                class="relative bg-white p-5 rounded-2xl border-gray-400 overflow-hidden flex flex-col gap-2"
-            >
-                <p class="text-lg font-bold">Game Over</p>
-                <button id="restart_button" type="button">Try again</button>
-                <button id="view_map_button" type="button">View map</button>
+        <div id="game_over_menu" class="arcade-overlay hidden">
+            <div class="arcade-panel">
+                <h1 class="arcade-title">Game Over</h1>
+                <p class="arcade-subtitle">You hit a mine</p>
+                <button
+                    id="restart_button"
+                    type="button"
+                    class="btn btn-primary"
+                >
+                    Try again
+                </button>
+                <button
+                    id="view_map_button"
+                    type="button"
+                    class="btn btn-secondary"
+                >
+                    View map
+                </button>
             </div>
         </div>
+        <div class="crt" aria-hidden="true"></div>
         <script type="module" src="/src/main.ts"></script>
     </body>
 </html>

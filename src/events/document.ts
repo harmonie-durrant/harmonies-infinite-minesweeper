@@ -13,13 +13,13 @@ export function initializeDocumentListeners() {
     document
         .querySelector("#view_map_button")!
         .addEventListener("click", () => {
-            ui.close("gameOverMenu");
-            ui.open("game_ui");
+            ui.closeAll();
+            ui.open("gameUI");
             grid.isLocked = false;
         });
 
     document.querySelector("#start_button")!.addEventListener("click", () => {
-        ui.close("mainMenu");
+        ui.closeAll();
         ui.open("gameUI");
         grid.reset();
         grid.isLocked = false;

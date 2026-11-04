@@ -1,1 +1,156 @@
 @import "tailwindcss";
+
+/*
+ * Retro arcade design system
+ * --------------------------
+ * - Surfaces: night-navy shades (bg < panel < raised). Never pure black/white.
+ * - Accents: pink = primary action / danger, cyan = secondary / info,
+ *   yellow = highlight / score. One primary button per panel.
+ * - Type: pixel font everywhere, uppercase, wide tracking.
+ * - Shape: square corners, 3-4px borders, hard offset shadows (no blur),
+ *   buttons sink into their shadow on press.
+ * - Glow: text-shadow in the accent color for titles only.
+ * - Canvas colors mirror these tokens in THEME (src/constants.ts).
+ */
+
+@theme {
+    --font-pixel: "Press Start 2P", ui-monospace, monospace;
+
+    --color-arcade-bg: #0b0b1e;
+    --color-arcade-panel: #14143a;
+    --color-arcade-raised: #23235b;
+    --color-arcade-line: #3a3a8c;
+    --color-arcade-ink: #f4f4ff;
+    --color-arcade-muted: #8a8ab8;
+    --color-arcade-pink: #ff2e88;
+    --color-arcade-cyan: #00e5ff;
+    --color-arcade-yellow: #ffd23f;
+}
+
+@layer base {
+    body {
+        @apply bg-arcade-bg font-pixel text-arcade-ink antialiased;
+    }
+}
+
+@layer components {
+    .arcade-overlay {
+        @apply absolute inset-0 items-center justify-center bg-arcade-bg/70 p-4;
+    }
+
+    .arcade-panel {
+        @apply flex w-full max-w-sm flex-col items-stretch gap-4 border-4 border-arcade-cyan bg-arcade-panel p-6 text-center;
+        box-shadow:
+            8px 8px 0 0 var(--color-arcade-pink),
+            0 0 32px 0
+                color-mix(in srgb, var(--color-arcade-cyan) 35%, transparent);
+    }
+
+    .arcade-title {
+        @apply text-xl leading-relaxed tracking-wider text-arcade-yellow uppercase;
+        text-shadow:
+            0 0 8px var(--color-arcade-yellow),
+            3px 3px 0 var(--color-arcade-pink);
+    }
+
+    .arcade-subtitle {
+        @apply text-[10px] tracking-widest text-arcade-muted uppercase;
+    }
+
+    .btn {
+        @apply cursor-pointer border-4 px-4 py-3 text-sm tracking-widest uppercase transition-transform duration-75 select-none;
+        @apply focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-arcade-yellow;
+        @apply active:translate-x-1 active:translate-y-1;
+    }
+
+    .btn-primary {
+        @apply border-arcade-ink bg-arcade-pink text-arcade-ink hover:brightness-110;
+        box-shadow: 4px 4px 0 0 var(--color-arcade-ink);
+    }
+
+    .btn-primary:active {
+        box-shadow: 0 0 0 0 var(--color-arcade-ink);
+    }
+
+    .btn-secondary {
+        @apply border-arcade-cyan bg-transparent text-arcade-cyan hover:bg-arcade-cyan/10;
+        box-shadow: 4px 4px 0 0 var(--color-arcade-line);
+    }
+
+    .btn-secondary:active {
+        box-shadow: 0 0 0 0 var(--color-arcade-line);
+    }
+
+    .btn-icon {
+        @apply flex size-14 items-center justify-center border-arcade-cyan bg-arcade-panel p-0 text-arcade-cyan hover:bg-arcade-raised;
+        box-shadow: 4px 4px 0 0 var(--color-arcade-pink);
+    }
+
+    .btn-icon:active {
+        box-shadow: 0 0 0 0 var(--color-arcade-pink);
+    }
+
+    .blink {
+        animation: blink 1s steps(1) infinite;
+    }
+}
+
+/* CRT screen effect: purely visual, never intercepts input. */
+.crt {
+    @apply pointer-events-none fixed inset-0 z-50;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgb(0 0 0 / 0) 0,
+            rgb(0 0 0 / 0) 2px,
+            rgb(0 0 0 / 0.25) 3px,
+            rgb(0 0 0 / 0) 4px
+        ),
+        radial-gradient(
+            ellipse at center,
+            rgb(0 0 0 / 0) 60%,
+            rgb(0 0 0 / 0.65) 100%
+        );
+    animation: crt-flicker 6s infinite;
+}
+
+.crt::after {
+    content: "";
+    @apply absolute inset-0;
+    /* faint RGB sub-pixel mask */
+    background: repeating-linear-gradient(
+        to right,
+        rgb(255 0 80 / 0.03) 0,
+        rgb(0 255 200 / 0.03) 1px,
+        rgb(80 80 255 / 0.03) 2px
+    );
+}
+
+@keyframes crt-flicker {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    48% {
+        opacity: 0.94;
+    }
+    50% {
+        opacity: 1;
+    }
+    52% {
+        opacity: 0.97;
+    }
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .crt,
+    .blink {
+        animation: none;
+    }
+}
