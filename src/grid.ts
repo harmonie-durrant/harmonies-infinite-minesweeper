@@ -1,6 +1,7 @@
-import { MAX_REVEAL } from "../constants";
-import { hash } from "../hash";
-import type { Vector2D } from "../vector";
+import type { Camera } from "./camera";
+import { CELL_SIZE, MAX_REVEAL } from "./constants";
+import { hash } from "./utils";
+import { Vector2D } from "./vector";
 
 export enum CellState {
     HIDDEN = "HIDDEN",
@@ -12,14 +13,22 @@ export class Grid {
     public seed: number;
     public isGameOver: boolean = false;
     public mineDensity: number;
+    public cellSize: number;
 
     private data = new Map<string, CellState>();
     private firstReveal: Vector2D | null = null;
 
-    constructor(seed: number, density: number = 0.18) {
+    constructor(seed: number, camera: Camera, density: number = 0.18) {
         const mineDensity = Math.abs(density);
         this.seed = seed;
         this.mineDensity = mineDensity > 1 ? 1 : mineDensity;
+        this.cellSize = CELL_SIZE * camera.zoom;
+    }
+
+    public reset() {
+        this.seed = Math.random() * 1000000;
+        this.data = new Map<string, CellState>();
+        this.firstReveal = null;
     }
 
     public getCellState(cellPosition: Vector2D) {
@@ -71,14 +80,14 @@ export class Grid {
 
     private getCellNeighbours(cellPosition: Vector2D): Vector2D[] {
         return [
-            { x: cellPosition.x - 1, y: cellPosition.y + 1 }, // Bottom Left
-            { x: cellPosition.x, y: cellPosition.y + 1 }, // Bottom Center
-            { x: cellPosition.x + 1, y: cellPosition.y + 1 }, // Bottom Right
-            { x: cellPosition.x - 1, y: cellPosition.y }, // Left
-            { x: cellPosition.x + 1, y: cellPosition.y }, // Right
-            { x: cellPosition.x - 1, y: cellPosition.y - 1 }, // Top Left
-            { x: cellPosition.x, y: cellPosition.y - 1 }, // Top Center
-            { x: cellPosition.x + 1, y: cellPosition.y - 1 }, // Top Right
+            new Vector2D(cellPosition.x - 1, cellPosition.y + 1), // Bottom Left
+            new Vector2D(cellPosition.x, cellPosition.y + 1), // Bottom Center
+            new Vector2D(cellPosition.x + 1, cellPosition.y + 1), // Bottom Right
+            new Vector2D(cellPosition.x - 1, cellPosition.y), // Left
+            new Vector2D(cellPosition.x + 1, cellPosition.y), // Right
+            new Vector2D(cellPosition.x - 1, cellPosition.y - 1), // Top Left
+            new Vector2D(cellPosition.x, cellPosition.y - 1), // Top Center
+            new Vector2D(cellPosition.x + 1, cellPosition.y - 1), // Top Right
         ];
     }
 

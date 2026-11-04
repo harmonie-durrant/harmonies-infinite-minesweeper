@@ -15,3 +15,5 @@ export const NUMBER_COLORS = [
 ];
 
 export const MAX_REVEAL = 10000;
+
+export const MAX_ZOOM = 10;
