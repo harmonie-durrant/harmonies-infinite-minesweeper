@@ -1,14 +1,13 @@
-import { grid, restart, ui } from "../main";
-import { draw } from "../render";
+import { exitToMainMenu, grid, startGame, ui } from "../main";
 
 export function initializeDocumentListeners() {
     document
-        .querySelector("#restart_button_ui")!
-        .addEventListener("click", restart);
+        .querySelector("#play_again_button")!
+        .addEventListener("click", startGame);
 
     document
-        .querySelector("#restart_button")!
-        .addEventListener("click", restart);
+        .querySelector("#main_menu_button")!
+        .addEventListener("click", exitToMainMenu);
 
     document
         .querySelector("#view_map_button")!
@@ -18,11 +17,7 @@ export function initializeDocumentListeners() {
             grid.isLocked = false;
         });
 
-    document.querySelector("#start_button")!.addEventListener("click", () => {
-        ui.closeAll();
-        ui.open("gameUI");
-        grid.reset();
-        grid.isLocked = false;
-        draw();
-    });
+    document
+        .querySelector("#start_button")!
+        .addEventListener("click", startGame);
 }

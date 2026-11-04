@@ -14,31 +14,27 @@
         />
     </head>
     <body class="m-0 h-dvh overflow-hidden">
-        <canvas id="game" class="block h-full w-full touch-none"></canvas>
+        <canvas
+            id="game"
+            class="block h-full w-full touch-none select-none"
+        ></canvas>
         <div id="game_ui" class="absolute hidden bottom-5 right-5">
             <button
                 type="button"
-                id="restart_button_ui"
+                id="pause_button"
                 class="btn btn-icon"
-                aria-label="Restart"
-                title="Restart"
+                aria-label="Pause"
+                title="Pause (Esc)"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
                     height="24"
                     viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="square"
-                    stroke-linejoin="miter"
-                    class="lucide lucide-rotate-ccw preview-icon"
+                    fill="currentColor"
                 >
-                    <path
-                        d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
-                    />
-                    <path d="M3 3v5h5" />
+                    <rect x="5" y="4" width="5" height="16" />
+                    <rect x="14" y="4" width="5" height="16" />
                 </svg>
             </button>
         </div>
@@ -48,6 +44,13 @@
                 <h1 class="arcade-title">Infinite<br />Minesweeper</h1>
                 <button id="start_button" type="button" class="btn btn-primary">
                     Start
+                </button>
+                <button
+                    id="options_button"
+                    type="button"
+                    class="btn btn-secondary"
+                >
+                    Options
                 </button>
                 <p class="arcade-subtitle blink">Insert coin</p>
             </div>
@@ -146,16 +149,217 @@
                 </a>
             </nav>
         </div>
+        <div id="options_menu" class="arcade-overlay hidden">
+            <div
+                class="arcade-panel options-panel"
+                role="dialog"
+                aria-labelledby="options_title"
+            >
+                <h1 id="options_title" class="arcade-title">Options</h1>
+                <div class="options-tabs" role="tablist">
+                    <button
+                        type="button"
+                        role="tab"
+                        id="tab_sound"
+                        class="options-tab"
+                        aria-selected="true"
+                        aria-controls="panel_sound"
+                    >
+                        Music &amp; Sound
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        id="tab_controls"
+                        class="options-tab"
+                        aria-selected="false"
+                        aria-controls="panel_controls"
+                        tabindex="-1"
+                    >
+                        Controls
+                    </button>
+                </div>
+                <div class="options-body">
+                    <section
+                        id="panel_sound"
+                        class="options-section"
+                        role="tabpanel"
+                        aria-labelledby="tab_sound"
+                    >
+                        <label class="options-row">
+                            <span class="options-label">Music</span>
+                            <input
+                                id="music_volume"
+                                class="arcade-range"
+                                type="range"
+                                min="0"
+                                max="100"
+                            />
+                            <output
+                                id="music_volume_value"
+                                class="options-value"
+                            ></output>
+                        </label>
+                        <label class="options-row">
+                            <span class="options-label">Sound FX</span>
+                            <input
+                                id="sfx_volume"
+                                class="arcade-range"
+                                type="range"
+                                min="0"
+                                max="100"
+                            />
+                            <output
+                                id="sfx_volume_value"
+                                class="options-value"
+                            ></output>
+                        </label>
+                        <label class="options-row">
+                            <span class="options-label flex-1"
+                                >Show music player</span
+                            >
+                            <input
+                                id="show_music_player"
+                                class="arcade-toggle"
+                                type="checkbox"
+                                role="switch"
+                            />
+                        </label>
+                    </section>
+                    <section
+                        id="panel_controls"
+                        class="options-section"
+                        role="tabpanel"
+                        aria-labelledby="tab_controls"
+                        hidden
+                    >
+                        <div class="bind-group touch-controls">
+                            <h2 class="bind-group-title">Touch</h2>
+                            <div class="bind-row">
+                                <span class="flex-1">Tap</span>
+                                <span
+                                    id="touch_tap"
+                                    class="touch-action"
+                                ></span>
+                            </div>
+                            <div class="bind-row">
+                                <span class="flex-1">Hold</span>
+                                <span
+                                    id="touch_hold"
+                                    class="touch-action"
+                                ></span>
+                            </div>
+                            <button
+                                id="touch_swap"
+                                type="button"
+                                class="btn btn-secondary self-start text-[10px]"
+                            >
+                                Swap tap &amp; hold
+                            </button>
+                        </div>
+                        <p class="arcade-subtitle leading-relaxed">
+                            Press a binding, then any key or mouse button. Esc
+                            cancels. Or pick a key below.
+                        </p>
+                        <div id="action_list" class="bind-groups"></div>
+                        <div class="input-map">
+                            <div id="keyboard" class="keyboard"></div>
+                            <div class="flex items-end justify-center gap-10">
+                                <div id="arrow_keys" class="arrow-keys"></div>
+                                <div id="mouse" class="mouse"></div>
+                            </div>
+                        </div>
+                        <div id="key_picker" class="key-picker" hidden>
+                            <p class="arcade-subtitle">
+                                <span
+                                    id="key_picker_label"
+                                    class="text-arcade-yellow"
+                                ></span>
+                                does
+                            </p>
+                            <div
+                                id="key_picker_actions"
+                                class="flex flex-wrap gap-2"
+                            ></div>
+                        </div>
+                        <button
+                            id="reset_keybinds"
+                            type="button"
+                            class="btn btn-secondary self-start text-[10px]"
+                        >
+                            Reset controls
+                        </button>
+                    </section>
+                </div>
+                <button id="options_back" type="button" class="btn btn-primary">
+                    Back
+                </button>
+            </div>
+        </div>
+        <div id="pause_menu" class="arcade-overlay hidden">
+            <div
+                class="arcade-panel"
+                role="dialog"
+                aria-labelledby="pause_title"
+            >
+                <h1 id="pause_title" class="arcade-title">Paused</h1>
+                <button
+                    id="resume_button"
+                    type="button"
+                    class="btn btn-primary"
+                >
+                    Resume
+                </button>
+                <button
+                    id="pause_restart_button"
+                    type="button"
+                    class="btn btn-secondary"
+                >
+                    Restart
+                </button>
+                <button
+                    id="pause_options_button"
+                    type="button"
+                    class="btn btn-secondary"
+                >
+                    Options
+                </button>
+                <button
+                    id="pause_main_menu_button"
+                    type="button"
+                    class="btn btn-secondary"
+                >
+                    Main menu
+                </button>
+            </div>
+        </div>
+        <div id="confirm_menu" class="arcade-overlay hidden">
+            <div
+                class="arcade-panel"
+                role="alertdialog"
+                aria-labelledby="confirm_title"
+                aria-describedby="confirm_message"
+            >
+                <h1 id="confirm_title" class="arcade-title"></h1>
+                <p id="confirm_message" class="arcade-subtitle"></p>
+                <button id="confirm_yes" type="button" class="btn btn-primary">
+                    Yes
+                </button>
+                <button id="confirm_no" type="button" class="btn btn-secondary">
+                    No
+                </button>
+            </div>
+        </div>
         <div id="game_over_menu" class="arcade-overlay hidden">
             <div class="arcade-panel">
                 <h1 class="arcade-title">Game Over</h1>
                 <p class="arcade-subtitle">You hit a mine</p>
                 <button
-                    id="restart_button"
+                    id="play_again_button"
                     type="button"
                     class="btn btn-primary"
                 >
-                    Try again
+                    Play again
                 </button>
                 <button
                     id="view_map_button"
@@ -164,7 +368,102 @@
                 >
                     View map
                 </button>
+                <button
+                    id="main_menu_button"
+                    type="button"
+                    class="btn btn-secondary"
+                >
+                    Main menu
+                </button>
+                <p class="arcade-subtitle blink">Press Enter</p>
             </div>
+        </div>
+        <div id="volume_hud" class="volume-hud hidden" aria-hidden="true">
+            <div class="volume-channel" data-channel="music">
+                <span class="volume-value"></span>
+                <div class="volume-bar"><div class="volume-fill"></div></div>
+                <span class="volume-label">Music</span>
+            </div>
+            <div class="volume-channel" data-channel="sfx">
+                <span class="volume-value"></span>
+                <div class="volume-bar"><div class="volume-fill"></div></div>
+                <span class="volume-label">SFX</span>
+            </div>
+        </div>
+        <div id="music_player" class="music-player">
+            <img
+                id="music_cover"
+                class="music-cover"
+                alt=""
+                aria-hidden="true"
+            />
+            <div class="min-w-0 flex-1" aria-live="polite">
+                <p id="music_title" class="music-title"></p>
+                <p id="music_artist" class="arcade-subtitle truncate"></p>
+            </div>
+            <button
+                type="button"
+                id="music_mute"
+                class="btn btn-icon btn-icon-sm"
+                aria-label="Mute music"
+                title="Mute music"
+            >
+                <svg
+                    id="music_icon_on"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="square"
+                    stroke-linejoin="miter"
+                >
+                    <path d="M11 5 6 9H2v6h4l5 4V5z" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+                <svg
+                    id="music_icon_off"
+                    class="hidden"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="square"
+                    stroke-linejoin="miter"
+                >
+                    <path d="M11 5 6 9H2v6h4l5 4V5z" />
+                    <path d="m22 9-6 6" />
+                    <path d="m16 9 6 6" />
+                </svg>
+            </button>
+            <button
+                type="button"
+                id="music_skip"
+                class="btn btn-icon btn-icon-sm"
+                aria-label="Next track"
+                title="Next track"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="square"
+                    stroke-linejoin="miter"
+                >
+                    <path d="m5 4 10 8-10 8V4z" />
+                    <path d="M19 5v14" />
+                </svg>
+            </button>
         </div>
         <div class="crt" aria-hidden="true"></div>
         <script type="module" src="/src/main.ts"></script>

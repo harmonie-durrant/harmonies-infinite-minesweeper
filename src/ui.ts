@@ -31,6 +31,10 @@ export class UI {
     public close(name: string) {
         const panel = this.uiPanels[name];
         if (!panel) return;
+        // A hidden button keeping focus would still catch Enter and Space
+        const focused = document.activeElement;
+        if (focused instanceof HTMLElement && panel.element.contains(focused))
+            focused.blur();
         panel.element.classList.replace("flex", "hidden");
         this.uiPanels[name] = { ...panel, isOpen: false };
     }

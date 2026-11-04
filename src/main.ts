@@ -7,6 +7,10 @@ import { initializeWindowListeners } from "./events/window";
 import { initializeCanvasListeners } from "./events/canvas";
 import { draw, resize } from "./render";
 import { clearAnimations } from "./animations";
+import { initializeMusicPlayer } from "./music/ui";
+import { initializeOptions } from "./options";
+import { initializePauseMenu } from "./pause";
+import { initializeVolumeHud } from "./volume";
 
 export const canvas = document.querySelector<HTMLCanvasElement>("#game")!;
 export const ctx = canvas.getContext("2d")!;
@@ -21,6 +25,18 @@ export const ui = new UI({
         element: document.querySelector<HTMLDivElement>("#game_over_menu")!,
         isOpen: false,
     },
+    optionsMenu: {
+        element: document.querySelector<HTMLDivElement>("#options_menu")!,
+        isOpen: false,
+    },
+    pauseMenu: {
+        element: document.querySelector<HTMLDivElement>("#pause_menu")!,
+        isOpen: false,
+    },
+    confirmMenu: {
+        element: document.querySelector<HTMLDivElement>("#confirm_menu")!,
+        isOpen: false,
+    },
     gameUI: {
         element: document.querySelector<HTMLDivElement>("#game_ui")!,
         isOpen: false,
@@ -29,7 +45,7 @@ export const ui = new UI({
 
 export const grid = new Grid(Math.random() * 1000000, camera);
 
-export function restart() {
+export function exitToMainMenu() {
     ui.closeAll();
     ui.open("mainMenu");
     grid.reset();
@@ -37,10 +53,29 @@ export function restart() {
     draw();
 }
 
+export function startGame() {
+    ui.closeAll();
+    ui.open("gameUI");
+    grid.reset();
+    grid.isLocked = false;
+    clearAnimations();
+    draw();
+}
+
+export function openGameOverMenu() {
+    ui.open("gameOverMenu");
+    // So Enter plays again straight away
+    document.querySelector<HTMLButtonElement>("#play_again_button")!.focus();
+}
+
 function main() {
     initializeDocumentListeners();
     initializeWindowListeners();
     initializeCanvasListeners();
+    initializeMusicPlayer();
+    initializeOptions();
+    initializePauseMenu();
+    initializeVolumeHud();
     resize();
 }
 

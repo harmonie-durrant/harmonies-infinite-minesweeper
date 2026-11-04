@@ -25,6 +25,9 @@
     --color-arcade-pink: #ff2e88;
     --color-arcade-cyan: #00e5ff;
     --color-arcade-yellow: #ffd23f;
+    --color-arcade-green: #39ff14;
+    --color-arcade-purple: #b26bff;
+    --color-arcade-orange: #ff9f1c;
 }
 
 @layer base {
@@ -107,9 +110,350 @@
         box-shadow: 0 0 0 0 var(--color-arcade-pink);
     }
 
+    .btn-icon-sm {
+        @apply size-10 shrink-0 border-3;
+        box-shadow: 3px 3px 0 0 var(--color-arcade-pink);
+    }
+
+    .music-player {
+        @apply absolute top-4 right-4 z-40 flex w-80 max-w-[calc(100%-2rem)] md:w-112 items-center gap-3 border-4 border-arcade-cyan bg-arcade-panel p-2 text-left;
+        box-shadow: 4px 4px 0 0 var(--color-arcade-pink);
+    }
+
+    .music-cover {
+        @apply size-12 shrink-0 border-2 border-arcade-line bg-arcade-panel object-cover;
+    }
+
+    .music-title {
+        @apply mb-1 truncate text-[10px] text-arcade-yellow uppercase;
+    }
+
     .blink {
         animation: blink 1s steps(1) infinite;
     }
+
+    /* Options menu */
+
+    /* Above the music player, which would otherwise cover the panel */
+    #options_menu {
+        @apply z-45;
+    }
+
+    /* Title, tabs and Back stay put; only the tab content scrolls */
+    .options-panel {
+        @apply max-h-full max-w-3xl text-left;
+    }
+
+    .options-body {
+        @apply -mx-3 min-h-0 flex-1 overflow-y-auto px-3;
+        scrollbar-color: var(--color-arcade-line) var(--color-arcade-panel);
+    }
+
+    .options-tabs {
+        @apply flex border-b-4 border-arcade-line;
+    }
+
+    .options-tab {
+        @apply -mb-1 cursor-pointer border-4 border-transparent px-3 py-3 text-[10px] tracking-widest text-arcade-muted uppercase hover:text-arcade-ink;
+        @apply focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-arcade-yellow;
+    }
+
+    .options-tab[aria-selected="true"] {
+        @apply border-arcade-line border-b-arcade-panel text-arcade-yellow;
+    }
+
+    .options-section {
+        @apply flex flex-col gap-5 py-2;
+    }
+
+    .options-section[hidden] {
+        @apply hidden;
+    }
+
+    .options-row {
+        @apply flex items-center gap-4;
+    }
+
+    .options-label {
+        @apply w-24 shrink-0 text-[10px] leading-relaxed tracking-widest uppercase;
+    }
+
+    .options-value {
+        @apply w-10 shrink-0 text-right text-[10px] text-arcade-yellow;
+    }
+
+    .arcade-range {
+        @apply h-4 min-w-0 flex-1 cursor-pointer appearance-none border-2 border-arcade-line;
+        @apply focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-arcade-yellow;
+        background: linear-gradient(
+            to right,
+            var(--color-arcade-cyan) var(--fill, 0%),
+            var(--color-arcade-raised) var(--fill, 0%)
+        );
+    }
+
+    .arcade-range::-webkit-slider-thumb {
+        @apply size-6 appearance-none border-4 border-arcade-ink bg-arcade-pink;
+        box-shadow: 2px 2px 0 0 var(--color-arcade-bg);
+    }
+
+    .arcade-range::-moz-range-thumb {
+        @apply size-6 rounded-none border-4 border-arcade-ink bg-arcade-pink;
+        box-shadow: 2px 2px 0 0 var(--color-arcade-bg);
+    }
+
+    .arcade-toggle {
+        @apply relative h-7 w-14 shrink-0 cursor-pointer appearance-none border-4 border-arcade-line bg-arcade-raised transition-colors;
+        @apply focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-arcade-yellow;
+    }
+
+    .arcade-toggle::before {
+        content: "";
+        @apply absolute top-0.5 left-0.5 size-4 bg-arcade-muted transition-transform duration-100;
+    }
+
+    .arcade-toggle:checked {
+        @apply border-arcade-cyan bg-arcade-cyan/25;
+    }
+
+    .arcade-toggle:checked::before {
+        @apply translate-x-7 bg-arcade-cyan;
+    }
+
+    /* Each action has its own color wherever its bindings are shown */
+    [data-action="reveal"] {
+        --bind: var(--color-arcade-cyan);
+    }
+
+    [data-action="flag"] {
+        --bind: var(--color-arcade-yellow);
+    }
+
+    [data-action="restart"] {
+        --bind: var(--color-arcade-pink);
+    }
+
+    [data-action="zoomIn"],
+    [data-action="zoomOut"] {
+        --bind: var(--color-arcade-green);
+    }
+
+    [data-action="muteMusic"],
+    [data-action="musicUp"],
+    [data-action="musicDown"],
+    [data-channel="music"] {
+        --bind: var(--color-arcade-purple);
+    }
+
+    [data-action="sfxUp"],
+    [data-action="sfxDown"],
+    [data-channel="sfx"] {
+        --bind: var(--color-arcade-orange);
+    }
+
+    .bind-groups {
+        @apply grid gap-x-8 gap-y-5 md:grid-cols-2;
+    }
+
+    .bind-group {
+        @apply flex flex-col gap-2;
+    }
+
+    .bind-group-title {
+        @apply flex items-center gap-3 text-[10px] tracking-widest text-arcade-muted uppercase;
+    }
+
+    .bind-row {
+        @apply flex items-center gap-3 text-[10px] tracking-widest uppercase;
+    }
+
+    .bind-swatch {
+        @apply size-4 shrink-0 border-2 border-arcade-ink bg-(--bind);
+    }
+
+    .bind-button {
+        @apply w-40 px-2 py-2 text-center text-[10px] sm:w-48;
+    }
+
+    .bind-button.recording {
+        @apply border-arcade-yellow text-arcade-yellow;
+        animation: blink 1s steps(1) infinite;
+    }
+
+    .input-map {
+        @apply flex flex-col gap-6;
+    }
+
+    .keyboard {
+        @apply flex flex-col gap-1;
+    }
+
+    /* Phones can't use the keyboard and mouse map, so touch comes first */
+    .touch-controls {
+        @apply pointer-coarse:order-first;
+    }
+
+    .touch-action {
+        @apply w-40 border-2 border-arcade-ink bg-(--bind) px-2 py-2 text-center text-[10px] text-arcade-bg sm:w-48;
+    }
+
+    .keyboard-row {
+        @apply flex gap-1;
+    }
+
+    .keycap,
+    .mouse-part {
+        @apply min-w-0 cursor-pointer overflow-hidden border-2 border-arcade-line bg-arcade-raised text-[6px] text-arcade-ink uppercase select-none sm:text-[9px];
+        @apply hover:border-arcade-ink;
+        @apply focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-arcade-yellow;
+        box-shadow: 0 3px 0 0 var(--color-arcade-bg);
+    }
+
+    .keycap {
+        @apply h-8 basis-0 px-0 sm:h-10 sm:px-0.5;
+    }
+
+    .keycap:active,
+    .mouse-part:active {
+        @apply translate-y-0.5;
+        box-shadow: 0 1px 0 0 var(--color-arcade-bg);
+    }
+
+    .keycap[data-action],
+    .mouse-part[data-action] {
+        @apply border-arcade-ink bg-(--bind) text-arcade-bg;
+    }
+
+    .keycap[aria-pressed="true"],
+    .mouse-part[aria-pressed="true"] {
+        @apply outline-3 outline-offset-1 outline-arcade-yellow;
+    }
+
+    .arrow-keys {
+        @apply grid shrink-0 grid-cols-3 gap-1;
+    }
+
+    .arrow-key {
+        @apply w-8 sm:w-10;
+    }
+
+    /* Inverted T: the up key sits over the down key */
+    .arrow-key:first-child {
+        @apply col-start-2;
+    }
+
+    .arrow-key:nth-child(2) {
+        @apply col-start-1;
+    }
+
+    .mouse {
+        @apply relative grid h-36 w-28 shrink-0 grid-cols-[1fr_1.5rem_1fr] grid-rows-[4.5rem_1fr] border-4 border-arcade-line bg-arcade-raised;
+        border-radius: 2.75rem 2.75rem 2rem 2rem;
+    }
+
+    .mouse-left {
+        @apply row-span-1 border-0 border-r-2 border-b-2;
+        border-top-left-radius: 2.5rem;
+    }
+
+    .mouse-right {
+        @apply row-span-1 border-0 border-b-2 border-l-2;
+        border-top-right-radius: 2.5rem;
+    }
+
+    .mouse-wheel-column {
+        @apply flex flex-col gap-0.5 py-1;
+    }
+
+    .mouse-wheel {
+        @apply flex-1 border-2 px-0;
+    }
+
+    .mouse-side {
+        @apply absolute -left-4 h-8 w-4 border-2 px-0;
+    }
+
+    .mouse-forward {
+        @apply top-16;
+    }
+
+    .mouse-back {
+        @apply top-25;
+    }
+
+    /* Volume HUD: vertical bars on the right edge */
+
+    .volume-hud {
+        @apply fixed top-1/2 right-4 z-40 -translate-y-1/2 gap-4 border-4 border-arcade-cyan bg-arcade-panel p-3;
+        box-shadow: 4px 4px 0 0 var(--color-arcade-pink);
+        animation: hud-in 120ms ease-out;
+    }
+
+    .volume-channel {
+        @apply flex flex-col items-center gap-2 text-[8px] tracking-widest uppercase;
+    }
+
+    .volume-value {
+        @apply w-8 text-center text-[10px] text-(--bind);
+    }
+
+    .volume-label {
+        @apply text-arcade-muted;
+    }
+
+    /* 10 segments of 13px with 2px gaps: 150px inside the border */
+    .volume-bar {
+        @apply relative h-[154px] w-7 cursor-ns-resize touch-none border-2 border-arcade-line;
+        background: repeating-linear-gradient(
+            to top,
+            var(--color-arcade-raised) 0 13px,
+            transparent 13px 15px
+        );
+    }
+
+    .volume-fill {
+        @apply pointer-events-none absolute inset-x-0 bottom-0;
+        background: repeating-linear-gradient(
+            to top,
+            var(--bind) 0 13px,
+            transparent 13px 15px
+        );
+        filter: drop-shadow(0 0 4px var(--bind));
+    }
+
+    .volume-channel.muted .volume-fill {
+        @apply opacity-30;
+        filter: none;
+    }
+
+    .volume-channel.muted .volume-value {
+        @apply text-arcade-muted;
+    }
+
+    .key-picker {
+        @apply flex flex-col gap-3 border-4 border-arcade-line bg-arcade-raised p-3;
+    }
+
+    .key-picker[hidden] {
+        @apply hidden;
+    }
+
+    .picker-choice {
+        @apply cursor-pointer border-2 border-arcade-line bg-arcade-panel px-3 py-2 text-[10px] tracking-widest text-arcade-ink uppercase hover:border-arcade-ink;
+        @apply focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-arcade-yellow;
+    }
+
+    .picker-choice[data-action] {
+        @apply border-l-8 border-l-(--bind);
+    }
+
+    .picker-choice[aria-pressed="true"] {
+        @apply border-arcade-ink bg-arcade-ink text-arcade-bg;
+    }
+}
+
+#game {
+    -webkit-touch-callout: none;
 }
 
 /* CRT screen effect: purely visual, never intercepts input. */
@@ -159,6 +503,13 @@
     }
 }
 
+@keyframes hud-in {
+    from {
+        opacity: 0;
+        translate: 1rem 0;
+    }
+}
+
 @keyframes blink {
     50% {
         opacity: 0;
@@ -174,6 +525,8 @@
 @media (prefers-reduced-motion: reduce) {
     .crt,
     .blink,
+    .bind-button.recording,
+    .volume-hud,
     .arcade-subtitle-rainbow {
         animation: none;
     }

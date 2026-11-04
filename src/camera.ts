@@ -1,4 +1,4 @@
-import { MAX_ZOOM } from "./constants";
+import { MAX_ZOOM, MIN_ZOOM, ZOOM_STEP } from "./constants";
 import { Vector2D } from "./vector";
 
 export class Camera {
@@ -9,14 +9,20 @@ export class Camera {
         this.position = startPosition || new Vector2D();
     }
 
+    // Bigger cells
     public zoomIn() {
-        if (this.zoom <= 0.5) this.zoom = 0.5;
-        this.zoom -= 0.1;
+        this.setZoom(this.zoom + ZOOM_STEP);
     }
 
+    // Smaller cells
     public zoomOut() {
-        if (this.zoom >= MAX_ZOOM) this.zoom = MAX_ZOOM;
-        this.zoom += 0.1;
+        this.setZoom(this.zoom - ZOOM_STEP);
+    }
+
+    private setZoom(zoom: number) {
+        // Rounded so repeated steps don't drift
+        const rounded = Math.round(zoom * 10) / 10;
+        this.zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, rounded));
     }
 
     public move(direction: Vector2D) {
