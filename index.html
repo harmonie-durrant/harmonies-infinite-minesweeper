@@ -443,13 +443,38 @@
         </div>
         <div class="top-right-hud">
             <div id="music_player" class="music-player">
+                <button
+                    type="button"
+                    id="music_collapse"
+                    class="music-collapse"
+                    aria-controls="music_details"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="square"
+                        stroke-linejoin="miter"
+                        aria-hidden="true"
+                    >
+                        <path d="m9 5 7 7-7 7" />
+                    </svg>
+                </button>
                 <img
                     id="music_cover"
                     class="music-cover"
                     alt=""
                     aria-hidden="true"
                 />
-                <div class="min-w-0 flex-1" aria-live="polite">
+                <div
+                    id="music_details"
+                    class="music-details"
+                    aria-live="polite"
+                >
                     <p id="music_title" class="music-title"></p>
                     <p id="music_artist" class="arcade-subtitle truncate"></p>
                 </div>

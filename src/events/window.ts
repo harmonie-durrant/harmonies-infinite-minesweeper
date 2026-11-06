@@ -1,20 +1,8 @@
 import { actionFor } from "../keybinds";
-import { startGame, ui } from "../main";
-import { onOptionsEscape } from "../options";
-import { cancelConfirm, pause, resume } from "../pause";
+import { ui } from "../main";
 import { resize } from "../render";
 import type { Action } from "../settings";
 import { runAction } from "./canvas";
-import { closeRunStats } from "../runStats";
-
-// Work in the pause menus too, not just in game
-const AUDIO_ACTIONS: Action[] = [
-    "muteMusic",
-    "musicUp",
-    "musicDown",
-    "sfxUp",
-    "sfxDown",
-];
 
 // Holding the key keeps stepping
 const REPEATING_ACTIONS: Action[] = [
@@ -26,40 +14,12 @@ const REPEATING_ACTIONS: Action[] = [
     "sfxDown",
 ];
 
-// Escape backs out one level at a time
-function onEscape() {
-    const { optionsMenu, confirmMenu, pauseMenu, gameUI } = ui.uiPanels;
-    if (optionsMenu?.isOpen) onOptionsEscape();
-    else if (confirmMenu?.isOpen) cancelConfirm();
-    else if (pauseMenu?.isOpen) resume();
-    else if (gameUI?.isOpen) pause();
-}
-
+// Panels listen on the document, which sees a key before the window does,
+// so anything they handled arrives here already prevented
 function onKeyDown(event: KeyboardEvent) {
-    if (event.code === "Escape") {
-        if (!event.repeat) onEscape();
-        return;
-    }
-    const { optionsMenu, confirmMenu, pauseMenu, gameOverMenu, runStatsMenu } =
-        ui.uiPanels;
-    if (optionsMenu?.isOpen) return;
-    // Enter on a focused button already presses it
-    const isEnter = event.code === "Enter" || event.code === "NumpadEnter";
-    const onButton = document.activeElement instanceof HTMLButtonElement;
-    if (runStatsMenu?.isOpen && isEnter && !onButton && !event.repeat) {
-        event.preventDefault();
-        closeRunStats();
-        return;
-    }
-    if (gameOverMenu?.isOpen && isEnter && !onButton && !event.repeat) {
-        event.preventDefault();
-        startGame();
-        return;
-    }
+    if (event.defaultPrevented) return;
     const action = actionFor({ device: "key", code: event.code });
-    if (!action) return;
-    const inPauseMenus = confirmMenu?.isOpen || pauseMenu?.isOpen;
-    if (inPauseMenus && !AUDIO_ACTIONS.includes(action)) return;
+    if (!action || !ui.allows(action)) return;
     event.preventDefault();
     if (event.repeat && !REPEATING_ACTIONS.includes(action)) return;
     runAction(action);

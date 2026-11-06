@@ -2,6 +2,7 @@
     "name": "harmonies-infinite-minesweeper",
     "private": true,
     "version": "0.0.2",
+    "author": "harmonie-durrant",
     "type": "module",
     "scripts": {
         "dev": "vite",

@@ -1,6 +1,7 @@
 import { bankRunCoins } from "./coins";
 import { RUN_STATS_COUNT_DURATION } from "./constants";
-import { openGameOverMenu, ui } from "./main";
+import { ui } from "./main";
+import { onEnter, type Panel } from "./ui";
 
 const runCoins = document.querySelector<HTMLSpanElement>("#run_coins")!;
 const continueButton = document.querySelector<HTMLButtonElement>(
@@ -29,17 +30,23 @@ function countUp(element: HTMLElement, total: number) {
 /** Shown between the explosion and the game over menu */
 export function openRunStats() {
     ui.open("runStatsMenu");
-    // The run is over, so its coins are safe now
-    countUp(runCoins, bankRunCoins());
-    continueButton.focus();
 }
 
-export function closeRunStats() {
-    cancelAnimationFrame(countFrame);
+function closeRunStats() {
     ui.close("runStatsMenu");
-    openGameOverMenu();
+    ui.open("gameOverMenu");
 }
 
-export function initializeRunStats() {
-    continueButton.addEventListener("click", closeRunStats);
-}
+export const runStatsPanel: Panel = {
+    element: document.querySelector<HTMLDivElement>("#run_stats_menu")!,
+    onOpen(signal) {
+        continueButton.addEventListener("click", closeRunStats, { signal });
+        onEnter(signal, closeRunStats);
+        // The run is over, so its coins are safe now
+        countUp(runCoins, bankRunCoins());
+        continueButton.focus();
+    },
+    onClose() {
+        cancelAnimationFrame(countFrame);
+    },
+};

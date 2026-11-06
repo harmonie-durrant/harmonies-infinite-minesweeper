@@ -12,6 +12,15 @@ export type Action =
     | "sfxUp"
     | "sfxDown";
 
+// Work in the pause menus too, not just in game
+export const AUDIO_ACTIONS: readonly Action[] = [
+    "muteMusic",
+    "musicUp",
+    "musicDown",
+    "sfxUp",
+    "sfxDown",
+];
+
 export type Binding =
     | { device: "key"; code: string }
     | { device: "mouse"; button: number }
@@ -29,6 +38,8 @@ export interface Settings {
     /** 0-1, scaled by SFX_MAX_VOLUME */
     sfxVolume: number;
     showMusicPlayer: boolean;
+    /** Shrunk down to just the cover art */
+    musicPlayerCollapsed: boolean;
     keybinds: Keybinds;
     touchTapAction: TouchTapAction;
 }
@@ -52,6 +63,7 @@ const DEFAULT_SETTINGS: Settings = {
     musicMuted: localStorage.getItem(MUTED_KEY) === "true",
     sfxVolume: 0.5,
     showMusicPlayer: true,
+    musicPlayerCollapsed: false,
     keybinds: DEFAULT_KEYBINDS,
     touchTapAction: "reveal",
 };

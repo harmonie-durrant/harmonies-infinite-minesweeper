@@ -87,19 +87,19 @@ function applyZoom() {
 
 // Zooms around the anchor, or the middle of the screen without a pointer
 function zoom(direction: "in" | "out", anchor: Vector2D | null) {
-    if (!ui.uiPanels.gameUI?.isOpen) return;
+    if (!ui.isOpen("gameUI")) return;
     if (direction === "in") camera.zoomIn(anchor ?? screenCenter());
     else camera.zoomOut(anchor ?? screenCenter());
     applyZoom();
 }
 
 function restartGame() {
-    const { gameUI, gameOverMenu, runStatsMenu } = ui.uiPanels;
+    const inGame = ui.isOpen("gameUI");
+    const isOver = ui.isOpen("gameOverMenu") || ui.isOpen("runStatsMenu");
     // Only from a game, not from the menus
-    if (!gameUI?.isOpen && !gameOverMenu?.isOpen && !runStatsMenu?.isOpen)
-        return;
+    if (!inGame && !isOver) return;
     // Nothing to lose once the run is over or before the first click
-    if (gameOverMenu?.isOpen || grid.isGameOver || !grid.hasStarted) {
+    if (isOver || grid.isGameOver || !grid.hasStarted) {
         startGame();
     } else {
         confirmRestart();

@@ -10,7 +10,7 @@ import {
     sameBinding,
     setBinding,
 } from "./keybinds";
-import { ui } from "./main";
+import { ui, type PanelName } from "./main";
 import {
     onSettingsChange,
     settings,
@@ -19,6 +19,7 @@ import {
     type Binding,
 } from "./settings";
 import { playFlag } from "./sfx";
+import { onEscape, type Panel } from "./ui";
 
 // [code, width in key units]; every row adds up to 15 units
 const KEYBOARD_ROWS: [string, number][][] = [
@@ -102,10 +103,10 @@ const pickerActions = document.querySelector<HTMLDivElement>(
 const inputElements: [Binding, HTMLButtonElement][] = [];
 
 // The menu Back returns to, and the button to refocus there
-let openedFrom = "mainMenu";
+let openedFrom: PanelName = "mainMenu";
 let openedBy: HTMLElement | null = null;
 
-export function openOptions(from: string) {
+export function openOptions(from: PanelName) {
     openedFrom = from;
     openedBy =
         document.activeElement instanceof HTMLElement
@@ -113,19 +114,15 @@ export function openOptions(from: string) {
             : null;
     ui.close(from);
     ui.open("optionsMenu");
-    menu.querySelector<HTMLButtonElement>("[aria-selected=true]")?.focus();
 }
 
 function closeOptions() {
-    stopRecording();
-    selected = null;
-    render();
     ui.close("optionsMenu");
     ui.open(openedFrom);
     openedBy?.focus();
 }
 
-export function onOptionsEscape() {
+function onOptionsEscape() {
     if (selected) {
         selected = null;
         render();
@@ -356,7 +353,9 @@ function render() {
     }
 }
 
-function initializeSlider(
+// Shows the setting's current value and writes changes back while open
+function bindSlider(
+    signal: AbortSignal,
     id: string,
     get: () => number,
     set: (value: number) => void,
@@ -367,12 +366,17 @@ function initializeSlider(
         output.value = slider.value;
         slider.style.setProperty("--fill", `${slider.value}%`);
     };
+    // The volume keys may have changed it since the menu was last open
     slider.value = String(Math.round(get() * 100));
     show();
-    slider.addEventListener("input", () => {
-        set(Number(slider.value) / 100);
-        show();
-    });
+    slider.addEventListener(
+        "input",
+        () => {
+            set(Number(slider.value) / 100);
+            show();
+        },
+        { signal },
+    );
     return slider;
 }
 
@@ -391,65 +395,103 @@ function renderTouchControls() {
     }
 }
 
-export function initializeOptions() {
-    document
-        .querySelector("#options_button")!
-        .addEventListener("click", () => openOptions("mainMenu"));
-    document
-        .querySelector("#options_back")!
-        .addEventListener("click", closeOptions);
+const tabs = [...menu.querySelectorAll<HTMLButtonElement>("[role=tab]")];
+const showPlayer =
+    document.querySelector<HTMLInputElement>("#show_music_player")!;
 
-    const tabs = [...menu.querySelectorAll<HTMLButtonElement>("[role=tab]")];
-    for (const [index, tab] of tabs.entries()) {
-        tab.addEventListener("click", () => selectTab(tab));
-        tab.addEventListener("keydown", (event) => {
-            const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
-            if (!step) return;
-            const next = tabs[(index + step + tabs.length) % tabs.length]!;
-            selectTab(next);
-            next.focus();
+export const optionsPanel: Panel = {
+    element: menu,
+    // Inputs pressed here are for binding, not for playing
+    allowedActions: [],
+    onOpen(signal) {
+        const listen = (
+            selector: string,
+            type: string,
+            handler: (event: Event) => void,
+        ) =>
+            document
+                .querySelector(selector)!
+                .addEventListener(type, handler, { signal });
+
+        listen("#options_back", "click", closeOptions);
+        onEscape(signal, onOptionsEscape);
+
+        for (const [index, tab] of tabs.entries()) {
+            tab.addEventListener("click", () => selectTab(tab), { signal });
+            tab.addEventListener(
+                "keydown",
+                (event) => {
+                    const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+                    if (!step) return;
+                    const next =
+                        tabs[(index + step + tabs.length) % tabs.length]!;
+                    selectTab(next);
+                    next.focus();
+                },
+                { signal },
+            );
+        }
+
+        bindSlider(
+            signal,
+            "music_volume",
+            () => settings.musicVolume,
+            (musicVolume) => updateSettings({ musicVolume }),
+        );
+        const sfxSlider = bindSlider(
+            signal,
+            "sfx_volume",
+            () => settings.sfxVolume,
+            (sfxVolume) => updateSettings({ sfxVolume }),
+        );
+        // A sample so the new level can be heard
+        sfxSlider.addEventListener("change", () => playFlag(true), {
+            signal,
         });
-    }
 
-    initializeSlider(
-        "music_volume",
-        () => settings.musicVolume,
-        (musicVolume) => updateSettings({ musicVolume }),
-    );
-    const sfxSlider = initializeSlider(
-        "sfx_volume",
-        () => settings.sfxVolume,
-        (sfxVolume) => updateSettings({ sfxVolume }),
-    );
-    // A sample so the new level can be heard
-    sfxSlider.addEventListener("change", () => playFlag(true));
+        showPlayer.checked = settings.showMusicPlayer;
+        showPlayer.addEventListener(
+            "change",
+            () => updateSettings({ showMusicPlayer: showPlayer.checked }),
+            { signal },
+        );
 
-    const showPlayer =
-        document.querySelector<HTMLInputElement>("#show_music_player")!;
-    showPlayer.checked = settings.showMusicPlayer;
-    showPlayer.addEventListener("change", () =>
-        updateSettings({ showMusicPlayer: showPlayer.checked }),
-    );
+        listen("#reset_keybinds", "click", () => {
+            stopRecording();
+            selected = null;
+            resetBindings();
+            updateSettings({ touchTapAction: "reveal" });
+        });
+        listen("#touch_swap", "click", () =>
+            updateSettings({
+                touchTapAction:
+                    settings.touchTapAction === "reveal" ? "flag" : "reveal",
+            }),
+        );
 
-    document.querySelector("#reset_keybinds")!.addEventListener("click", () => {
+        // Right clicks inside the menu are for binding, not the browser menu
+        menu.addEventListener(
+            "contextmenu",
+            (event) => event.preventDefault(),
+            {
+                signal,
+            },
+        );
+
+        menu.querySelector<HTMLButtonElement>("[aria-selected=true]")?.focus();
+    },
+    onClose() {
+        // Also covers closeAll, which skips closeOptions
         stopRecording();
         selected = null;
-        resetBindings();
-        updateSettings({ touchTapAction: "reveal" });
-    });
+        render();
+    },
+};
 
-    document.querySelector("#touch_swap")!.addEventListener("click", () =>
-        updateSettings({
-            touchTapAction:
-                settings.touchTapAction === "reveal" ? "flag" : "reveal",
-        }),
-    );
+/** Builds the binding buttons once; they only take clicks while it is open */
+export function initializeOptions() {
     onSettingsChange(renderTouchControls);
     renderTouchControls();
-
-    // Right clicks inside the menu are for binding, not the browser menu
-    menu.addEventListener("contextmenu", (event) => event.preventDefault());
-
     buildActionList();
     buildKeyboard();
     buildPicker();

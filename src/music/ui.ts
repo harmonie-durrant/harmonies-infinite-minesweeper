@@ -18,6 +18,8 @@ export function initializeMusicPlayer() {
         document.querySelector<HTMLButtonElement>("#music_mute")!;
     const skipButton =
         document.querySelector<HTMLButtonElement>("#music_skip")!;
+    const collapseButton =
+        document.querySelector<HTMLButtonElement>("#music_collapse")!;
     const volumeOnIcon = document.querySelector("#music_icon_on")!;
     const volumeOffIcon = document.querySelector("#music_icon_off")!;
 
@@ -41,9 +43,21 @@ export function initializeMusicPlayer() {
         volumeOffIcon.classList.toggle("hidden", !player.muted);
     }
 
+    function showCollapsed() {
+        const collapsed = settings.musicPlayerCollapsed;
+        container.classList.toggle("collapsed", collapsed);
+        const label = collapsed
+            ? "Expand music player"
+            : "Collapse music player";
+        collapseButton.setAttribute("aria-label", label);
+        collapseButton.title = label;
+        collapseButton.setAttribute("aria-expanded", String(!collapsed));
+    }
+
     function applySettings() {
         player.setVolume(settings.musicVolume * MUSIC_MAX_VOLUME);
         container.classList.toggle("hidden", !settings.showMusicPlayer);
+        showCollapsed();
         if (player.muted !== settings.musicMuted) {
             player.setMuted(settings.musicMuted);
             showMuted();
@@ -69,6 +83,12 @@ export function initializeMusicPlayer() {
     );
 
     skipButton.addEventListener("click", () => player.skip());
+
+    collapseButton.addEventListener("click", () =>
+        updateSettings({
+            musicPlayerCollapsed: !settings.musicPlayerCollapsed,
+        }),
+    );
 
     document.addEventListener("visibilitychange", () => {
         if (document.hidden) player.pause();

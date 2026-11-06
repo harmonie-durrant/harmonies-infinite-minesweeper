@@ -153,8 +153,9 @@
         box-shadow: 4px 4px 0 0 var(--color-arcade-pink);
     }
 
+    /* Solid and click-catching, so a tap on it never reaches the board */
     .coin-balance {
-        @apply pointer-events-none flex items-center gap-2 border-4 border-arcade-cyan bg-arcade-panel px-3 py-2 text-sm text-arcade-yellow opacity-75;
+        @apply pointer-events-auto flex items-center gap-2 border-4 border-arcade-cyan bg-arcade-panel px-3 py-2 text-sm text-arcade-yellow;
         box-shadow: 4px 4px 0 0 var(--color-arcade-pink);
     }
 
@@ -172,7 +173,7 @@
 
     /* Coins picked up this run, banked only when the run ends */
     .run-coin-balance {
-        @apply border-2 border-arcade-yellow bg-arcade-panel px-2 py-1 text-[10px] text-arcade-yellow;
+        @apply pointer-events-auto border-2 border-arcade-yellow bg-arcade-panel px-2 py-1 text-[10px] text-arcade-yellow;
     }
 
     .run-coin-balance.lost {
@@ -192,6 +193,28 @@
         @apply absolute top-0 left-0;
         image-rendering: pixelated;
         filter: drop-shadow(0 0 6px var(--color-arcade-yellow));
+    }
+
+    .music-player.collapsed {
+        @apply w-auto md:w-auto;
+    }
+
+    .music-player.collapsed .music-details,
+    .music-player.collapsed .btn-icon {
+        @apply hidden;
+    }
+
+    .music-details {
+        @apply min-w-0 flex-1;
+    }
+
+    .music-collapse {
+        @apply flex h-12 w-6 shrink-0 cursor-pointer items-center justify-center text-arcade-cyan hover:text-arcade-yellow;
+    }
+
+    /* Points right to tuck the player away, left to bring it back */
+    .music-player.collapsed .music-collapse svg {
+        @apply rotate-180;
     }
 
     .music-cover {
